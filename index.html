@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moscow Spotlight</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background-color: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+        .screen { border: 2px solid #00f0ff; border-radius: 15px; padding: 20px; margin: 20px 0; box-shadow: 0 0 15px #00f0ff; }
+        .price { font-size: 1.2em; color: #00ff00; }
+        button { background: #0088cc; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>MOSCOW SPOTLIGHT</h1>
+    <div class="screen">
+        <p id="owner">Владелец: Загрузка...</p>
+        <h2 id="content">Москва ждет своего героя!</h2>
+    </div>
+    <p class="price">Цена захвата: <span id="current_price">10</span> ⭐</p>
+    <button onclick="capture()">ЗАХВАТИТЬ ВНИМАНИЕ</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
+
+        function capture() {
+            // Здесь мы будем вызывать платежное окно Stars
+            tg.showPopup({
+                title: 'Захват эфира',
+                message: 'Вы готовы потратить звезды, чтобы вас увидела вся Москва?',
+                buttons: [{type: 'ok', text: 'Погнали!'}]
+            });
+        }
+    </script>
+</body>
+</html>
