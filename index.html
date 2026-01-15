@@ -1,5 +1,5 @@
 import asyncio
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
 
@@ -31,7 +31,7 @@ async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 # --- ПОСЛЕ ОПЛАТЫ ---
-@dp.successful_payment()
+@dp.message(F.successful_payment)
 async def process_successful_payment(message: types.Message):
     await message.answer("🎉 Оплата прошла! Вы захватили внимание Москвы!")
 
