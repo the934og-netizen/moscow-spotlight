@@ -3,39 +3,33 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
 
-# 1. ТВОЙ ТОКЕН (обязательно оставь свой!)
-API_TOKEN = '8360675235:AAE32kvTdO7Dd2TlbB2mjzaO4lh7EZW61Ew'
+# ТВОЙ ТОКЕН
+API_TOKEN = '8360675235:AAE32kVtDO7Dd2TlbB2mjzaO4lh7EZW...' # Оставь свой полный токен
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# --- ШАГ 3: ОБРАБОТКА ДАННЫХ ИЗ MINI APP ---
 @dp.message(lambda message: message.web_app_data)
 async def handle_web_app_data(message: types.Message):
-    # Если кнопка в приложении отправила этот текст:
     if message.web_app_data.data == "action_buy_stars":
-        # Бот выставляет счет на 10 звезд
         await bot.send_invoice(
             chat_id=message.chat.id,
             title="Захват Москвы",
             description="Ваше сообщение увидит вся Москва!",
             payload="capture_payload",
-            currency="XTR", # Код валюты Telegram Stars
+            currency="XTR",
             prices=[LabeledPrice(label="Захват", amount=10)],
-            provider_token="" # Для звезд всегда пусто
+            provider_token=""
         )
 
-# --- ПРОВЕРКА ПЛАТЕЖА (обязательно) ---
 @dp.pre_checkout_query()
 async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
-# --- ПОСЛЕ ОПЛАТЫ ---
 @dp.message(F.successful_payment)
 async def process_successful_payment(message: types.Message):
     await message.answer("🎉 Оплата прошла! Вы захватили внимание Москвы!")
 
-# Команда /start
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     markup = types.ReplyKeyboardMarkup(
