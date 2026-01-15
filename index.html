@@ -1,54 +1,36 @@
-import asyncio
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import Command
-from aiogram.types import WebAppInfo, LabeledPrice, PreCheckoutQuery
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moscow Spotlight</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background-color: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+        .screen { border: 2px solid #00f0ff; border-radius: 15px; padding: 20px; margin: 20px 0; box-shadow: 0 0 15px #00f0ff; }
+        .price { font-size: 1.2em; color: #00ff00; }
+        button { background: #0088cc; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>MOSCOW SPOTLIGHT</h1>
+    <div class="screen">
+        <p id="owner">Владелец: Загрузка...</p>
+        <h2 id="content">Москва ждет своего героя!</h2>
+    </div>
+    <p class="price">Цена захвата: <span id="current_price">10</span> ⭐</p>
+    <button onclick="capture()">ЗАХВАТИТЬ ВНИМАНИЕ</button>
 
-# ТВОЙ ТОКЕН
-API_TOKEN = '8360675235:AAE32kvTdO7Dd2TlbB2mjzaO4lh7EZW61Ew' # Оставь свой полный токен
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
 
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
-
-@dp.message(lambda message: message.web_app_data)
-async def handle_web_app_data(message: types.Message):
-    if message.web_app_data.data == "action_buy_stars":
-        await bot.send_invoice(
-            chat_id=message.chat.id,
-            title="Захват Москвы",
-            description="Ваше сообщение увидит вся Москва!",
-            payload="capture_payload",
-            currency="XTR",
-            prices=[LabeledPrice(label="Захват", amount=10)],
-            provider_token=""
-        )
-
-@dp.pre_checkout_query()
-async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
-    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
-
-@dp.message(F.successful_payment)
-async def process_successful_payment(message: types.Message):
-    await message.answer("🎉 Оплата прошла! Вы захватили внимание Москвы!")
-
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    markup = types.ReplyKeyboardMarkup(
-        keyboard=[
-            [types.KeyboardButton(
-                text="🚀 ОТКРЫТЬ MOSCOW SPOTLIGHT", 
-                web_app=WebAppInfo(url="https://the934og-netizen.github.io/moscow-spotlight/")
-            )]
-        ],
-        resize_keyboard=True
-    )
-    await message.answer(f"Привет, {message.from_user.full_name}! Готов захватить эфир?", reply_markup=markup)
-
-async def main():
-    print("Бот запущен и готов принимать Звезды...")
-    await dp.start_polling(bot)
-
-if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Бот выключен")
+        function capture() {
+            let tg = window.Telegram.WebApp;
+            // Отправляем боту данные, что мы хотим купить эфир
+            tg.sendData("action_buy_stars"); 
+  
+        }
+    </script>
+</body>
+</html>
