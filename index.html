@@ -30,6 +30,27 @@
             // Отправляем боту данные, что мы хотим купить эфир
             tg.sendData("action_buy_stars"); 
   
+        async function updateScreen() {
+    // Вставьте сюда вашу ссылку от ngrok + /data
+    const url = "https://matt-wiliest-latrina.ngrok-free.dev"; 
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Обновляем текст на экране
+        document.getElementById('owner').innerText = "Владелец: " + data.owner;
+        document.getElementById('current_price').innerText = data.price;
+        
+    } catch (error) {
+        console.log("Ошибка связи с базой...");
+    }
+}
+
+// Запускаем обновление каждые 3 секунды
+setInterval(updateScreen, 3000);
+updateScreen(); // Первый запуск сразу
+
         }
     </script>
 </body>
