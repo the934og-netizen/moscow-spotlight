@@ -24,7 +24,7 @@
 
         async function update() {
             // ВАЖНО: Впиши сюда свою свежую ссылку из окна ngrok!
-            const url = "https://matt-wiliest-latrina.ngrok-free.dev/data?v=" + Date.now();
+            const url = "http://93.183.73.141:8080/data";
             try {
                 const res = await fetch(url);
                 const data = await res.json();
@@ -41,3 +41,4 @@
     </script>
 </body>
 </html>
+
