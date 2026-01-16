@@ -1,38 +1,43 @@
-<script>
-async function updateScreen() {
-    // ВАЖНО: Проверьте, что эта ссылка СОВПАДАЕТ с той, что в окне ngrok сейчас!
-    const baseUrl = "https://matt-wiliest-latrina.ngrok-free.dev/data";
-    const url = baseUrl + "?v=" + new Date().getTime(); // Обман кэша
-    
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Ошибка сети');
-        
-        const data = await response.json();
-        console.log("Данные получены:", data);
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Moscow Spotlight</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .card { border: 2px solid #00ffcc; border-radius: 15px; padding: 20px; margin: 20px; box-shadow: 0 0 15px #00ffcc; }
+        button { background: #0088cc; color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>MOSCOW SPOTLIGHT</h1>
+    <div class="card">
+        <p id="owner">Загрузка...</p>
+        <p>Цена захвата: <span id="current_price">10</span> ⭐</p>
+    </div>
+    <button onclick="buy()">ЗАХВАТИТЬ ВНИМАНИЕ</button>
 
-        // Обновляем текст владельца
-        const ownerElement = document.getElementById('owner');
-        ownerElement.innerText = "Владелец: " + (data.owner || "Загрузка...");
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
 
-        // Обновляем цену
-        const priceElement = document.getElementById('current_price');
-        priceElement.innerText = (data.price || "10") + " ⭐";
-
-        // Если верифицирован — добавляем эффект
-        if (data.is_verified) {
-            ownerElement.style.color = "#ffd700";
-            ownerElement.style.fontWeight = "bold";
-        } else {
-            ownerElement.style.color = "#ffffff";
+        async function update() {
+            // ВАЖНО: Впиши сюда свою свежую ссылку из окна ngrok!
+            const url = "https://matt-wiliest-latrina.ngrok-free.dev/data?v=" + Date.now();
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                document.getElementById('owner').innerText = "Владелец: " + data.owner;
+                document.getElementById('current_price').innerText = data.price;
+                if(data.is_verified) { document.getElementById('owner').style.color = "#ffd700"; }
+            } catch(e) { console.error(e); }
         }
 
-    } catch (error) {
-        console.error("Ошибка обновления:", error);
-    }
-}
+        function buy() { tg.sendData("action_buy_spotlight"); }
 
-// Запускаем обновление каждые 3 секунды
-setInterval(updateScreen, 3000);
-updateScreen();
-</script>
+        setInterval(update, 3000);
+        update();
+    </script>
+</body>
+</html>
