@@ -1,92 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Moscow Spotlight</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE SPOTLIGHT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            background: radial-gradient(circle, #0f172a 0%, #000000 100%); 
-            color: #ffffff; 
-            font-family: 'Inter', sans-serif; 
-            text-align: center; 
-            padding: 20px;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+        :root { --neon-blue: #00d2ff; --neon-purple: #9d50bb; --gold: #fbbf24; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; overflow: hidden; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .title-block h1 { font-size: 24px; margin: 0; letter-spacing: 1px; }
+        .title-block p { font-size: 12px; color: #888; margin: 5px 0; }
+        .verified-tag { color: var(--gold); font-size: 10px; text-align: right; border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; }
+
+        .owner-line { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .owner-name { color: var(--neon-blue); font-weight: bold; }
+        .thanks-btn { background: rgba(0, 210, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 4px 12px; border-radius: 8px; font-size: 12px; }
+
+        .main-display { 
+            border: 2px solid;
+            border-image: linear-gradient(to right, var(--neon-blue), var(--neon-purple)) 1;
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+            margin-bottom: 30px;
         }
-        h1 { font-weight: 800; letter-spacing: -1px; text-transform: uppercase; margin-bottom: 30px; color: #f8fafc; }
-        .card { 
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px; 
-            padding: 30px; 
-            margin: 20px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            width: 80%;
-            max-width: 350px;
+        .main-display::after { content: 'Срочно!'; position: absolute; bottom: 10px; right: 10px; color: var(--neon-purple); font-size: 12px; }
+
+        .history-section { text-align: left; font-size: 13px; color: #aaa; margin-bottom: 30px; }
+        .history-item { margin-bottom: 10px; display: flex; gap: 10px; }
+        .history-item span { color: var(--neon-blue); }
+
+        .action-btn { 
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            width: 100%; padding: 18px; border: none; border-radius: 12px;
+            color: white; font-weight: bold; font-size: 16px; text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
         }
-        #owner { 
-            font-size: 1.2rem; 
-            font-weight: 600; 
-            color: #fbbf24; /* Тот самый золотой цвет */
-            text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
-            margin-bottom: 10px;
-        }
-        .price-tag { font-size: 0.9rem; color: #94a3b8; margin-top: 5px; }
-        .stars-count { color: #fbbf24; font-weight: bold; }
-        button { 
-            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); 
-            color: #ffffff; 
-            border: none; 
-            padding: 18px 35px; 
-            border-radius: 16px; 
-            font-size: 1rem;
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-            width: 100%;
-            max-width: 300px;
-            margin-top: 20px;
-            text-transform: uppercase;
-        }
-        button:active { transform: scale(0.95); opacity: 0.9; }
+        .price-label { text-align: center; color: #00ff00; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>MOSCOW SPOTLIGHT</h1>
-    <div class="card">
-        <p id="owner">Загрузка данных...</p>
-        <p class="price-tag">Цена захвата: <span class="stars-count" id="current_price">10</span> ⭐</p>
+    <div class="header">
+        <div class="title-block">
+            <h1>THE SPOTLIGHT</h1>
+            <p>Внимание — это валюта.</p>
+        </div>
+        <div class="verified-tag">✓ Verified<br>Resident</div>
     </div>
-    <button onclick="buy()">Захватить внимание</button>
+
+    <div class="owner-line">
+        <span id="owner" class="owner-name">Загрузка...</span>
+        <button class="thanks-btn">Спасибо!</button>
+    </div>
+
+    <div class="main-display">
+        <div id="main-text" style="font-weight: bold; font-size: 18px; line-height: 1.4;">
+            ОЖИДАНИЕ ТРАНСЛЯЦИИ...
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div style="margin-bottom: 15px; font-weight: bold;">История эфира</div>
+        <div class="history-item"><span>@cat_lover:</span> "Найден кот! Ул. Мира 5!"</div>
+        <div class="history-item"><span>@local_bar:</span> "Пиво за полцены сегодня!"</div>
+    </div>
+
+    <button class="action-btn" onclick="buy()">ЗАХВАТИТЬ ЭФИР за <span id="btn-price">10</span> ⭐</button>
+    <div class="price-label">Текущая цена: <span id="current_price">10</span> ⭐</div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
         async function update() {
-            // ВАЖНО: Ваша актуальная ссылка из туннеля
             const url = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                document.getElementById('owner').innerText = "В эфире: " + data.owner;
+                document.getElementById('owner').innerText = "@" + data.owner;
                 document.getElementById('current_price').innerText = data.price;
-            } catch (e) {
-                document.getElementById('owner').innerText = "Ошибка связи";
-            }
+                document.getElementById('btn-price').innerText = data.price;
+                if(data.is_verified) {
+                    document.getElementById('main-text').innerText = "ВСЕ, КТО ИЗ МОСКВЫ — СОБЕРЕМСЯ В ЧАТЕ! ОБСУДИМ ПРОЕКТ ОЛЕГА НИКОЛАЕВИЧА!";
+                }
+            } catch (e) { console.error("Ошибка связи"); }
         }
 
-        function buy() {
-            tg.sendData("action_buy_spotlight");
-        }
-
+        function buy() { tg.sendData("action_buy_spotlight"); }
         update();
         setInterval(update, 5000);
     </script>
