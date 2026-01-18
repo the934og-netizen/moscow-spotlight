@@ -72,27 +72,64 @@
     <div class="price-label">Текущая цена: <span id="current_price">...</span> ⭐</div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        // Список ваших системных сообщений
+const promoMessages = [
+    "🚀 ЭФИР СВОБОДЕН! Нажми кнопку, чтобы захватить внимание!",
+    "💰 Приглашай друзей и зарабатывай на их захватах!",
+    "👑 Verified Resident: получи золотой статус и уважение!",
+    "👀 Сейчас этот экран видят сотни людей. Здесь могла быть твоя реклама."
+];
 
-        async function update() {
-            const url = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                document.getElementById('owner').innerText = "@" + data.owner;
-                document.getElementById('current_price').innerText = data.price;
-                document.getElementById('btn-price').innerText = data.price;
-                if(data.is_verified) {
-                    document.getElementById('main-text').innerText = "ВСЕ, КТО ИЗ МОСКВЫ — СОБЕРЕМСЯ В ЧАТЕ! ОБСУДИМ ПРОЕКТ ОЛЕГА НИКОЛАЕВИЧА!";
-                }
-            } catch (e) { console.error("Ошибка связи"); }
+let promoIndex = 0;
+let isPromoRunning = false;
+
+// Функция, которая меняет текст, если эфир свободен
+function rotatePromo() {
+    if (!isPromoRunning) return;
+    
+    const mainText = document.getElementById('main-text'); // Блок с контентом
+    
+    // Красивое затухание (если добавим CSS transition)
+    mainText.style.opacity = 0; 
+    
+    setTimeout(() => {
+        mainText.innerText = promoMessages[promoIndex];
+        mainText.style.opacity = 1;
+        promoIndex = (promoIndex + 1) % promoMessages.length;
+    }, 500); // Половина секунды на смену
+}
+
+// Обновленная логика получения данных
+async function update() {
+    const url = "https://issues-glucose-header-synopsis.trycloudflare.com/data"; // Ваша ссылка
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        // Если владелец 0 (никто) или имя "Никто"
+        if (data.owner_id === 0 || data.owner === "Никто") {
+            if (!isPromoRunning) {
+                isPromoRunning = true;
+                setInterval(rotatePromo, 5000); // Менять фразу каждые 5 секунд
+                rotatePromo(); // Запустить сразу
+            }
+            // Цену и кнопку оставляем активными
+            document.getElementById('btn-price').innerText = data.price;
+        } else {
+            // Если эфир КУПИЛИ - выключаем рекламу и показываем контент владельца
+            isPromoRunning = false;
+            document.getElementById('main-text').innerText = data.content; // Текст покупателя
+            document.getElementById('owner').innerText = data.owner;
+            document.getElementById('current_price').innerText = data.price;
         }
-
+        
+    } catch (e) { console.error("Ошибка связи"); }
+}
         function buy() { tg.sendData("action_buy_spotlight"); }
         update();
         setInterval(update, 5000);
     </script>
 </body>
 </html>
+
 
