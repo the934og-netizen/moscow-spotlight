@@ -3,133 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE SPOTLIGHT</title>
+    <title>Moscow Spotlight</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --neon-blue: #00d2ff; --neon-purple: #9d50bb; --gold: #fbbf24; }
-        body { background: #000; color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; overflow: hidden; }
-        
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .title-block h1 { font-size: 24px; margin: 0; letter-spacing: 1px; }
-        .title-block p { font-size: 12px; color: #888; margin: 5px 0; }
-        .verified-tag { color: var(--gold); font-size: 10px; text-align: right; border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; }
-
-        .owner-line { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .owner-name { color: var(--neon-blue); font-weight: bold; }
-        .thanks-btn { background: rgba(0, 210, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 4px 12px; border-radius: 8px; font-size: 12px; }
-
-        .main-display { 
-            border: 2px solid;
-            border-image: linear-gradient(to right, var(--neon-blue), var(--neon-purple)) 1;
-            padding: 40px 20px;
+        body {
+            background-color: var(--tg-theme-bg-color, #1c1c1e);
+            color: var(--tg-theme-text-color, #ffffff);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
             text-align: center;
-            background: rgba(255, 255, 255, 0.02);
-            position: relative;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Стиль для главного табло */
+        .spotlight-box {
+            background: linear-gradient(145deg, #2c2c2e, #3a3a3c);
+            border-radius: 20px;
+            padding: 30px 20px;
             margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
         }
-        .main-display::after { content: 'Срочно!'; position: absolute; bottom: 10px; right: 10px; color: var(--neon-purple); font-size: 12px; }
 
-        .history-section { text-align: left; font-size: 13px; color: #aaa; margin-bottom: 30px; }
-        .history-item { margin-bottom: 10px; display: flex; gap: 10px; }
-        .history-item span { color: var(--neon-blue); }
-
-        .action-btn { 
-            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
-            width: 100%; padding: 18px; border: none; border-radius: 12px;
-            color: white; font-weight: bold; font-size: 16px; text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        #main-text {
+            font-size: 22px;
+            line-height: 1.4;
+            font-weight: 600;
+            transition: opacity 0.5s ease-in-out; /* Плавная анимация */
         }
-        .price-label { text-align: center; color: #00ff00; font-size: 12px; margin-top: 10px; }
+
+        .verified-badge {
+            color: #FFD700; /* Золото */
+            font-size: 14px;
+            margin-top: 10px;
+            display: none; /* Скрыто по умолчанию */
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .action-btn {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(51, 144, 236, 0.4);
+            transition: transform 0.1s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .price-label {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Анимация загрузки */
+        .loader {
+            color: #888;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="title-block">
-            <h1>THE SPOTLIGHT</h1>
-            <p>Внимание — это валюта.</p>
+
+    <div class="container">
+        <h1>MOSCOW SPOTLIGHT 🇷🇺</h1>
+
+        <div class="spotlight-box">
+            <div id="main-text">📡 Поиск сигнала...</div>
+            <div id="verified-badge" class="verified-badge">
+                Verified Resident ⭐️
+            </div>
         </div>
-        <div class="verified-tag">✓ Verified<br>Resident</div>
-    </div>
 
-    <div class="owner-line">
-        <span id="owner" class="owner-name">Загрузка...</span>
-        <button class="thanks-btn">Спасибо!</button>
-    </div>
-
-    <div class="main-display">
-        <div id="main-text" style="font-weight: bold; font-size: 18px; line-height: 1.4;">
-            ОЖИДАНИЕ ТРАНСЛЯЦИИ...
+        <button class="action-btn" onclick="buy()">
+            ЗАХВАТИТЬ ЭФИР за <span id="btn-price">...</span> ⭐️
+        </button>
+        <div class="price-label">
+            Текущая ставка: <span id="current_price">...</span> ⭐️
         </div>
     </div>
-
-    <div class="history-section">
-        <div style="margin-bottom: 15px; font-weight: bold;">История эфира</div>
-        <div class="history-item"><span>@cat_lover:</span> "Найден кот! Ул. Мира 5!"</div>
-        <div class="history-item"><span>@local_bar:</span> "Пиво за полцены сегодня!"</div>
-    </div>
-
-    <button class="action-btn" onclick="buy()">ЗАХВАТИТЬ ЭФИР за <span id="btn-price">...</span> ⭐</button>
-    <div class="price-label">Текущая цена: <span id="current_price">...</span> ⭐</div>
 
     <script>
-        // Список ваших системных сообщений
-const promoMessages = [
-    "🚀 ЭФИР СВОБОДЕН! Нажми кнопку, чтобы захватить внимание!",
-    "💰 Приглашай друзей и зарабатывай на их захватах!",
-    "👑 Verified Resident: получи золотой статус и уважение!",
-    "👀 Сейчас этот экран видят сотни людей. Здесь могла быть твоя реклама."
-];
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрыть на весь экран
 
-let promoIndex = 0;
-let isPromoRunning = false;
-
-// Функция, которая меняет текст, если эфир свободен
-function rotatePromo() {
-    if (!isPromoRunning) return;
-    
-    const mainText = document.getElementById('main-text'); // Блок с контентом
-    
-    // Красивое затухание (если добавим CSS transition)
-    mainText.style.opacity = 0; 
-    
-    setTimeout(() => {
-        mainText.innerText = promoMessages[promoIndex];
-        mainText.style.opacity = 1;
-        promoIndex = (promoIndex + 1) % promoMessages.length;
-    }, 500); // Половина секунды на смену
-}
-
-// Обновленная логика получения данных
-async function update() {
-    const url = "https://issues-glucose-header-synopsis.trycloudflare.com/data"; // Ваша ссылка
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-
-        // Если владелец 0 (никто) или имя "Никто"
-        if (data.owner_id === 0 || data.owner === "Никто") {
-            if (!isPromoRunning) {
-                isPromoRunning = true;
-                setInterval(rotatePromo, 5000); // Менять фразу каждые 5 секунд
-                rotatePromo(); // Запустить сразу
-            }
-            // Цену и кнопку оставляем активными
-            document.getElementById('btn-price').innerText = data.price;
-        } else {
-            // Если эфир КУПИЛИ - выключаем рекламу и показываем контент владельца
-            isPromoRunning = false;
-            document.getElementById('main-text').innerText = data.content; // Текст покупателя
-            document.getElementById('owner').innerText = data.owner;
-            document.getElementById('current_price').innerText = data.price;
-        }
+        // === НАСТРОЙКИ ===
+        // Ваша ссылка на туннель (проверьте, не изменилась ли она в systemctl)
+        const DATA_URL = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
         
-    } catch (e) { console.error("Ошибка связи"); }
-}
-        function buy() { tg.sendData("action_buy_spotlight"); }
-        update();
-        setInterval(update, 5000);
+        // Наши рекламные сообщения для карусели
+        const promoMessages = [
+            "📢 ЭФИР СВОБОДЕН!\nТвое сообщение увидят все.",
+            "💰 ПРИВЕДИ ДРУГА\nПолучи % от его захвата!",
+            "👑 VERIFIED RESIDENT\nПолучи золотой статус мастера.",
+            "🚀 MOSCOW SPOTLIGHT\nЗахвати внимание города сейчас!"
+        ];
+
+        let promoIndex = 0;
+        let isPromoActive = false;
+        let promoInterval = null;
+
+        // Функция покупки (отправляет данные боту)
+        function buy() {
+            tg.sendData("action_buy_spotlight"); 
+        }
+
+        // Функция для переключения рекламных фраз
+        function rotatePromo() {
+            const textElement = document.getElementById('main-text');
+            
+            // 1. Исчезновение
+            textElement.style.opacity = 0;
+
+            setTimeout(() => {
+                // 2. Смена текста (пока невидимый)
+                textElement.innerText = promoMessages[promoIndex];
+                
+                // 3. Появление
+                textElement.style.opacity = 1;
+
+                // Переход к следующей фразе
+                promoIndex = (promoIndex + 1) % promoMessages.length;
+            }, 500); // Ждем 0.5 сек пока исчезнет
+        }
+
+        // Главная функция обновления данных
+        async function update() {
+            try {
+                const res = await fetch(DATA_URL);
+                const data = await res.json();
+
+                const textElement = document.getElementById('main-text');
+                const badgeElement = document.getElementById('verified-badge');
+                const btnPrice = document.getElementById('btn-price');
+                const currentPrice = document.getElementById('current_price');
+
+                // Обновляем цены всегда
+                btnPrice.innerText = data.price;
+                currentPrice.innerText = data.price;
+
+                // === ЛОГИКА ЭФИРА ===
+                // Проверяем: если в тексте есть слово "Свободно" (или ID=0, если бы он был), запускаем рекламу
+                if (data.owner && data.owner.includes("Свободно")) {
+                    
+                    // Если реклама еще не запущена - запускаем
+                    if (!isPromoActive) {
+                        isPromoActive = true;
+                        badgeElement.style.display = 'none'; // Скрываем значок
+                        rotatePromo(); // Показать первую сразу
+                        promoInterval = setInterval(rotatePromo, 5000); // Менять каждые 5 сек
+                    }
+                    
+                } else {
+                    // === ЭФИР ЗАНЯТ (КТО-ТО КУПИЛ) ===
+                    if (isPromoActive) {
+                        clearInterval(promoInterval); // Остановить рекламу
+                        isPromoActive = false;
+                    }
+                    
+                    textElement.style.opacity = 1;
+                    textElement.innerText = data.owner; // Показываем контент владельца
+
+                    // Проверка на Verified Resident
+                    if (data.is_verified) {
+                        badgeElement.style.display = 'flex'; // Показать золото
+                    } else {
+                        badgeElement.style.display = 'none';
+                    }
+                }
+
+            } catch (e) {
+                console.error("Ошибка связи:", e);
+                // Можно написать "Ошибка связи" на экране, если хотите
+            }
+        }
+
+        // Запускаем обновление каждые 2 секунды
+        setInterval(update, 2000);
+        update(); // И один раз сразу при запуске
     </script>
 </body>
 </html>
-
-
