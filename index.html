@@ -6,215 +6,42 @@
     <title>Moscow Spotlight</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            background-color: var(--tg-theme-bg-color, #1c1c1e);
-            color: var(--tg-theme-text-color, #ffffff);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 400px;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Стиль для главного табло */
-        .spotlight-box {
-            background: linear-gradient(145deg, #2c2c2e, #3a3a3c);
-            border-radius: 20px;
-            padding: 30px 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-        }
-
-        #main-text {
-            font-size: 22px;
-            line-height: 1.4;
-            font-weight: 600;
-            transition: opacity 0.5s ease-in-out; /* Плавная анимация */
-        }
-
-        .verified-badge {
-            color: #FFD700; /* Золото */
-            font-size: 14px;
-            margin-top: 10px;
-            display: none; /* Скрыто по умолчанию */
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .action-btn {
-            background: var(--tg-theme-button-color, #3390ec);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(51, 144, 236, 0.4);
-            transition: transform 0.1s;
-        }
-
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-
-        .price-label {
-            margin-top: 15px;
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        /* Анимация загрузки */
-        .loader {
-            color: #888;
-            font-size: 14px;
-        }
+        body { background-color: #1c1c1e; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .spotlight-box { background: #2c2c2e; border-radius: 20px; padding: 40px 20px; margin-bottom: 20px; width: 300px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        #main-text { font-size: 20px; font-weight: bold; }
+        .verified { color: #FFD700; font-size: 14px; margin-top: 10px; display: none; }
+        .action-btn { background: #3390ec; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 12px; width: 300px; font-weight: bold; cursor: pointer; }
+        .price-label { margin-top: 10px; font-size: 14px; opacity: 0.6; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>MOSCOW SPOTLIGHT 🇷🇺</h1>
-
-        <div class="spotlight-box">
-            <div id="main-text">📡 Поиск сигнала...</div>
-            <div id="verified-badge" class="verified-badge">
-                Verified Resident ⭐️
-            </div>
-        </div>
-
-        <button class="action-btn" onclick="buy()">
-            ЗАХВАТИТЬ ЭФИР за <span id="btn-price">...</span> ⭐️
-        </button>
-        <div class="price-label">
-            Текущая ставка: <span id="current_price">...</span> ⭐️
-        </div>
+    <h1>MOSCOW SPOTLIGHT RU</h1>
+    <div class="spotlight-box">
+        <div id="main-text">Загрузка...</div>
+        <div id="verified-badge" class="verified">Verified Resident ⭐️</div>
     </div>
+    <button class="action-btn" onclick="buy()">ЗАХВАТИТЬ ЭФИР за <span id="btn-price">10</span> ⭐️</button>
+    <div class="price-label">Текущая ставка: <span id="current_price">10</span> ⭐️</div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть на весь экран
+        tg.expand();
 
-        // === НАСТРОЙКИ ===
-        // Ваша ссылка на туннель (проверьте, не изменилась ли она в systemctl)
-        const DATA_URL = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
-        
-        // Наши рекламные сообщения для карусели
-        const promoMessages = [
-            "📢 ЭФИР СВОБОДЕН!\nТвое сообщение увидят все.",
-            "💰 ПРИВЕДИ ДРУГА\nПолучи % от его захвата!",
-            "👑 VERIFIED RESIDENT\nПолучи золотой статус мастера.",
-            "🚀 MOSCOW SPOTLIGHT\nЗахвати внимание города сейчас!"
-        ];
-
-        let promoIndex = 0;
-        let isPromoActive = false;
-        let promoInterval = null;
-
-        // Функция покупки (отправляет данные боту)
-        function buy() {
-            tg.sendData("action_buy_spotlight"); 
-        }
-
-        // Функция для переключения рекламных фраз
-        function rotatePromo() {
-            const textElement = document.getElementById('main-text');
-            
-            // 1. Исчезновение
-            textElement.style.opacity = 0;
-
-            setTimeout(() => {
-                // 2. Смена текста (пока невидимый)
-                textElement.innerText = promoMessages[promoIndex];
-                
-                // 3. Появление
-                textElement.style.opacity = 1;
-
-                // Переход к следующей фразе
-                promoIndex = (promoIndex + 1) % promoMessages.length;
-            }, 500); // Ждем 0.5 сек пока исчезнет
-        }
-
-        // Главная функция обновления данных
         async function update() {
+            const url = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
             try {
-                const res = await fetch(DATA_URL);
+                const res = await fetch(url);
                 const data = await res.json();
-
-                const textElement = document.getElementById('main-text');
-                const badgeElement = document.getElementById('verified-badge');
-                const btnPrice = document.getElementById('btn-price');
-                const currentPrice = document.getElementById('current_price');
-
-                // Обновляем цены всегда
-                btnPrice.innerText = data.price;
-                currentPrice.innerText = data.price;
-
-                // === ЛОГИКА ЭФИРА ===
-                // Проверяем: если в тексте есть слово "Свободно" (или ID=0, если бы он был), запускаем рекламу
-                if (data.owner && data.owner.includes("Свободно")) {
-                    
-                    // Если реклама еще не запущена - запускаем
-                    if (!isPromoActive) {
-                        isPromoActive = true;
-                        badgeElement.style.display = 'none'; // Скрываем значок
-                        rotatePromo(); // Показать первую сразу
-                        promoInterval = setInterval(rotatePromo, 5000); // Менять каждые 5 сек
-                    }
-                    
-                } else {
-                    // === ЭФИР ЗАНЯТ (КТО-ТО КУПИЛ) ===
-                    if (isPromoActive) {
-                        clearInterval(promoInterval); // Остановить рекламу
-                        isPromoActive = false;
-                    }
-                    
-                    textElement.style.opacity = 1;
-                    textElement.innerText = data.owner; // Показываем контент владельца
-
-                    // Проверка на Verified Resident
-                    if (data.is_verified) {
-                        badgeElement.style.display = 'flex'; // Показать золото
-                    } else {
-                        badgeElement.style.display = 'none';
-                    }
-                }
-
-            } catch (e) {
-                console.error("Ошибка связи:", e);
-                // Можно написать "Ошибка связи" на экране, если хотите
-            }
+                document.getElementById('main-text').innerText = data.owner;
+                document.getElementById('btn-price').innerText = data.price;
+                document.getElementById('current_price').innerText = data.price;
+                if (data.is_verified) { document.getElementById('verified-badge').style.display = 'block'; }
+                else { document.getElementById('verified-badge').style.display = 'none'; }
+            } catch (e) { console.error("Ошибка"); }
         }
-
-        // Запускаем обновление каждые 2 секунды
-        setInterval(update, 2000);
-        update(); // И один раз сразу при запуске
+        function buy() { tg.sendData("action_buy_spotlight"); }
+        setInterval(update, 3000);
+        update();
     </script>
 </body>
 </html>
