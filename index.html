@@ -21,6 +21,7 @@
     </style>
 </head>
 <body>
+    <div id="dbg" style="margin-top:12px; font-size:12px; color:#8b949e; white-space:pre-wrap;"></div>
     <div class="header">
         <h1>THE SPOTLIGHT</h1>
         <div id="badge" class="v-badge">Verified Resident ⭐️</div>
@@ -54,60 +55,66 @@
   }
 
   async function update() {
-    try {
-      const r = await fetch(URL, { cache: "no-store" });
-      const text = await r.text();        // читаем как текст
-      console.log("HTTP", r.status, "BODY:", text.slice(0, 200));
+  const dbg = document.getElementById('dbg');
+  try {
+    dbg.innerText = "fetch: " + URL;
 
-      if (!r.ok) throw new Error("HTTP " + r.status);
+    const r = await fetch(URL, { cache: "no-store" });
+    const text = await r.text();
 
-      // пробуем распарсить JSON вручную
-       let d;
-       try { d = JSON.parse(text); }
-       catch(e) { throw new Error("NOT_JSON"); }
+    dbg.innerText =
+      "HTTP: " + r.status + "\n" +
+      "Content-Type: " + (r.headers.get("content-type") || "") + "\n" +
+      "Body(120): " + text.slice(0, 120);
 
-      // Показываем владельца/контент (твой сервер отдаёт owner, content, price)
-      document.getElementById('owner').innerText = d.content
-        ? `${d.owner}\n${d.content}`
-        : d.owner;
+    if (!r.ok) throw new Error("HTTP " + r.status);
 
-      document.getElementById('v-badge').style.display = d.is_verified ? 'block' : 'none';
+    let d;
+    try { d = JSON.parse(text); }
+    catch { throw new Error("NOT_JSON"); }
 
-      const btn = document.getElementById('main-btn');
+    document.getElementById('owner').innerText = d.content ? `${d.owner}\n${d.content}` : d.owner;
+    document.getElementById('v-badge').style.display = d.is_verified ? 'block' : 'none';
 
-      const me = tg.initDataUnsafe?.user?.id;
-      const isDev = DEV_ALLOW_IDS.includes(me);
+    const btn = document.getElementById('main-btn');
+    const me = tg.initDataUnsafe?.user?.id;
+    const isDev = [98782935].includes(me);
 
-      // Если ты dev — разрешаем кнопку всегда, даже без гео
-      if (isDev) {
-        btn.innerText = `DEV: ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
+    if (isDev) {
+      btn.innerText = `DEV: ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
+      btn.className = "btn btn-blue";
+      btn.disabled = false;
+      dbg.innerText += "\nDEV OK, user_id=" + me;
+      return;
+    }
+
+    tg.getLocation((loc) => {
+      const inZone = loc
+        && loc.latitude >= 54.0 && loc.latitude <= 57.0
+        && loc.longitude >= 35.0 && loc.longitude <= 40.0;
+
+      if (inZone) {
+        btn.innerText = `ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
         btn.className = "btn btn-blue";
         btn.disabled = false;
-        return;
+      } else {
+        btn.innerText = loc ? "ВНЕ ЗОНЫ" : "ВКЛЮЧИТЕ GPS";
+        btn.className = "btn btn-gray";
+        btn.disabled = true;
       }
+      dbg.innerText += "\nloc=" + JSON.stringify(loc);
+    });
 
-      // Для всех остальных — проверка гео
-      tg.getLocation((loc) => {
-        const inZone = loc
-          && loc.latitude >= 54.0 && loc.latitude <= 57.0
-          && loc.longitude >= 35.0 && loc.longitude <= 40.0;
+  } catch (e) {
+    document.getElementById('owner').innerText = "ОШИБКА СВЯЗИ";
+    const btn = document.getElementById('main-btn');
+    btn.innerText = "ОШИБКА";
+    btn.className = "btn btn-gray";
+    btn.disabled = true;
 
-        if (inZone) {
-          btn.innerText = `ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
-          btn.className = "btn btn-blue";
-          btn.disabled = false;
-        } else {
-          btn.innerText = loc ? "ВНЕ ЗОНЫ" : "ВКЛЮЧИТЕ GPS";
-          btn.className = "btn btn-gray";
-          btn.disabled = true;
-        }
-      });
-
-    } catch (e) {
-      console.log("Update error:", e);
-      setError("ОШИБКА СВЯЗИ");
-    }
+    dbg.innerText += "\nERROR: " + e;
   }
+}
 
   document.getElementById('main-btn').onclick = () => tg.sendData("action_buy_spotlight");
 
@@ -116,6 +123,7 @@
 </script>
 </body>
 </html>
+
 
 
 
