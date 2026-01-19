@@ -56,9 +56,15 @@
   async function update() {
     try {
       const r = await fetch(URL, { cache: "no-store" });
+      const text = await r.text();        // читаем как текст
+      console.log("HTTP", r.status, "BODY:", text.slice(0, 200));
+
       if (!r.ok) throw new Error("HTTP " + r.status);
 
-      const d = await r.json();
+      // пробуем распарсить JSON вручную
+       let d;
+       try { d = JSON.parse(text); }
+       catch(e) { throw new Error("NOT_JSON"); }
 
       // Показываем владельца/контент (твой сервер отдаёт owner, content, price)
       document.getElementById('owner').innerText = d.content
@@ -110,6 +116,7 @@
 </script>
 </body>
 </html>
+
 
 
 
