@@ -39,55 +39,77 @@
     <button id="main-btn" class="btn btn-locked" disabled>Проверка доступа...</button>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        const DEV_ALLOW_IDS = [98782935];
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  const DEV_ALLOW_IDS = [98782935]; // твой ID
+  const URL = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
+
+  function setError(text) {
+    document.getElementById('owner').innerText = text;
+    const btn = document.getElementById('main-btn');
+    btn.innerText = "ОШИБКА";
+    btn.className = "btn btn-gray";
+    btn.disabled = true;
+  }
+
+  async function update() {
+    try {
+      const r = await fetch(URL, { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+
+      const d = await r.json();
+
+      // Показываем владельца/контент (твой сервер отдаёт owner, content, price)
+      document.getElementById('owner').innerText = d.content
+        ? `${d.owner}\n${d.content}`
+        : d.owner;
+
+      document.getElementById('v-badge').style.display = d.is_verified ? 'block' : 'none';
+
+      const btn = document.getElementById('main-btn');
+
+      const me = tg.initDataUnsafe?.user?.id;
+      const isDev = DEV_ALLOW_IDS.includes(me);
+
+      // Если ты dev — разрешаем кнопку всегда, даже без гео
+      if (isDev) {
+        btn.innerText = `DEV: ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
+        btn.className = "btn btn-blue";
+        btn.disabled = false;
+        return;
+      }
+
+      // Для всех остальных — проверка гео
+      tg.getLocation((loc) => {
         const inZone = loc
           && loc.latitude >= 54.0 && loc.latitude <= 57.0
           && loc.longitude >= 35.0 && loc.longitude <= 40.0;
 
-        async function updateUI() {
-            try {
-                const response = await fetch('https://issues-glucose-header-synopsis.trycloudflare.com/data');
-                const data = await response.json();
-                
-                document.getElementById('owner').innerText = data.owner;
-                document.getElementById('badge').style.display = data.is_verified ? 'block' : 'none';
-                if (data.owner !== "Свободно") document.getElementById('card').classList.add('active-border');
-
-              tg.getLocation((loc) => {
-                const btn = document.getElementById('main-btn');
-
-                const me = tg.initDataUnsafe?.user?.id;
-                const isDev = DEV_ALLOW_IDS.includes(me);
-
-                const inZone = isDev || (
-                loc
-                && loc.latitude >= 54.0 && loc.latitude <= 57.0
-                && loc.longitude >= 35.0 && loc.longitude <= 40.0
-              );
-
-              if (inZone) {
-                btn.innerText = `ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
-                btn.className = "btn btn-blue";
-                btn.disabled = false;
-              } else {
-                btn.innerText = loc ? "ВНЕ ЗОНЫ" : "ВКЛЮЧИТЕ GPS";
-                btn.className = "btn btn-gray";
-                btn.disabled = true;
-              }
-              });
-
-            } catch (e) {
-              document.getElementById('owner').innerText = "ОШИБКА СВЯЗИ";   
-              console.log("Fetch error:", e); }
+        if (inZone) {
+          btn.innerText = `ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
+          btn.className = "btn btn-blue";
+          btn.disabled = false;
+        } else {
+          btn.innerText = loc ? "ВНЕ ЗОНЫ" : "ВКЛЮЧИТЕ GPS";
+          btn.className = "btn btn-gray";
+          btn.disabled = true;
         }
+      });
 
-        document.getElementById('main-btn').onclick = () => tg.sendData("action_buy_spotlight");
-        setInterval(updateUI, 5000);
-        updateUI();
-    </script>
+    } catch (e) {
+      console.log("Update error:", e);
+      setError("ОШИБКА СВЯЗИ");
+    }
+  }
+
+  document.getElementById('main-btn').onclick = () => tg.sendData("action_buy_spotlight");
+
+  setInterval(update, 5000);
+  update();
+</script>
 </body>
 </html>
+
 
 
