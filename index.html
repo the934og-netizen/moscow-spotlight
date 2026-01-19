@@ -2,64 +2,81 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>THE SPOTLIGHT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0d1117; color: #ffffff; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .verified-box { display: none; align-items: center; gap: 5px; font-size: 10px; color: #d4af37; border: 1px solid #d4af37; padding: 2px 8px; border-radius: 5px; }
-        .main-broadcast { width: 100%; border: 2px solid; border-image: linear-gradient(45deg, #58a6ff, #bc8cff) 1; padding: 30px 20px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(88,166,255,0.2); box-sizing: border-box; }
-        .capture-btn { width: 100%; background: linear-gradient(90deg, #1f6feb, #388bfd); border: none; color: white; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-        .capture-btn:disabled { background: #30363d !important; cursor: not-allowed; box-shadow: none; }
+        body { background: #0d1117; color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 20px; overflow-x: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        h1 { font-size: 28px; margin: 0; letter-spacing: 2px; }
+        .tagline { color: #8b949e; font-size: 12px; margin-bottom: 20px; }
+        .verified-badge { display: none; background: rgba(212, 175, 55, 0.1); color: #d4af37; border: 1px solid #d4af37; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .main-card { border: 1px solid #30363d; border-radius: 12px; padding: 20px; background: #161b22; position: relative; margin-bottom: 20px; }
+        .neon-border { position: absolute; inset: -1px; border-radius: 12px; border: 1px solid #58a6ff; box-shadow: 0 0 15px rgba(88, 166, 255, 0.3); pointer-events: none; }
+        .broadcast-label { color: #58a6ff; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .owner-name { font-size: 22px; font-weight: 800; display: block; margin-bottom: 15px; }
+        .history { color: #8b949e; font-size: 14px; margin-top: 30px; }
+        .history-item { margin-bottom: 8px; }
+        .history-user { color: #d29922; font-weight: bold; }
+        .capture-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 20px; text-transform: uppercase; }
+        .active { background: #238636; color: white; box-shadow: 0 4px 15px rgba(35, 134, 54, 0.4); }
+        .locked { background: #30363d; color: #8b949e; cursor: not-allowed; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>THE SPOTLIGHT</h1>
-        <div id="v-box" class="verified-box">Verified Resident ⭐️</div>
+        <div id="v-badge" class="verified-badge">Verified Resident ⭐️</div>
+    </div>
+    <div class="tagline">Внимание — это валюта.</div>
+
+    <div class="main-card">
+        <div class="neon-border"></div>
+        <span class="broadcast-label">В эфире:</span>
+        <span id="owner" class="owner-name">Загрузка...</span>
     </div>
 
-    <div class="main-broadcast">
-        <div id="main-content">Загрузка эфира...</div>
+    <div class="history">
+        <div class="history-item"><span class="history-user">@cat_lover:</span> "Найден кот! Ул. Мира 5!"</div>
+        <div class="history-item"><span class="history-user">@local_bar:</span> "Пиво за полцены сегодня!"</div>
     </div>
 
-    <button id="main-btn" class="capture-btn" onclick="buy()">ЗАХВАТИТЬ ЭФИР</button>
+    <button id="btn" class="capture-btn locked" disabled>Определение геопозиции...</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        const MOSCOW_BOUNDS = { latMin: 54.0, latMax: 57.0, lonMin: 35.0, lonMax: 40.0 };
+        const LIMITS = { latMin: 54.0, latMax: 57.0, lonMin: 35.0, lonMax: 40.0 };
 
-        async function update() {
+        async function refresh() {
             try {
-                const res = await fetch("https://issues-glucose-header-synopsis.trycloudflare.com/data");
-                const data = await res.json();
-                
-                document.getElementById('main-content').innerText = data.owner;
-                document.getElementById('v-box').style.display = data.is_verified ? 'flex' : 'none';
+                const r = await fetch('https://issues-glucose-header-synopsis.trycloudflare.com/data');
+                const d = await r.json();
+                document.getElementById('owner').innerText = d.owner;
+                document.getElementById('v-badge').style.display = d.is_verified ? 'block' : 'none';
 
-                // Авто-проверка ГЕО
-                tg.getLocation((geo) => {
-                    const btn = document.getElementById('main-btn');
-                    if (!geo || !geo.latitude) {
+                tg.getLocation((loc) => {
+                    const btn = document.getElementById('btn');
+                    if (!loc || !loc.latitude) {
                         btn.innerText = "ВКЛЮЧИТЕ ГЕОПОЗИЦИЮ";
-                        btn.disabled = true;
-                    } else if (geo.latitude < MOSCOW_BOUNDS.latMin || geo.latitude > MOSCOW_BOUNDS.latMax) {
-                        btn.innerText = "ВНЕ ЗОНЫ ОХВАТА";
-                        btn.disabled = true;
-                    } else {
-                        btn.innerText = "ЗАХВАТИТЬ ЭФИР за " + data.price + " ⭐️";
+                    } else if (loc.latitude >= LIMITS.latMin && loc.latitude <= LIMITS.latMax) {
+                        btn.innerText = `ЗАХВАТИТЬ ЭФИР ЗА ${d.price} ⭐️`;
+                        btn.className = "capture-btn active";
                         btn.disabled = false;
+                    } else {
+                        btn.innerText = "ВНЕ ЗОНЫ ОХВАТА";
+                        btn.className = "capture-btn locked";
+                        btn.disabled = true;
                     }
                 });
-            } catch (e) { console.error("Ошибка"); }
+            } catch (e) { console.error(e); }
         }
 
         function buy() { tg.sendData("action_buy_spotlight"); }
-        setInterval(update, 5000);
-        update();
+        document.getElementById('btn').onclick = buy;
+        setInterval(refresh, 5000);
+        refresh();
     </script>
 </body>
 </html>
