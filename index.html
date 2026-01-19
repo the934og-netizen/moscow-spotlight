@@ -41,7 +41,7 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-
+        const DEV_ALLOW_IDS = [98782935];
         const inZone = loc
           && loc.latitude >= 54.0 && loc.latitude <= 57.0
           && loc.longitude >= 35.0 && loc.longitude <= 40.0;
@@ -55,18 +55,29 @@
                 document.getElementById('badge').style.display = data.is_verified ? 'block' : 'none';
                 if (data.owner !== "Свободно") document.getElementById('card').classList.add('active-border');
 
-                tg.getLocation((loc) => {
-                    const btn = document.getElementById('main-btn');
-                    if (loc && loc.latitude >= BOUNDS.latMin && loc.latitude <= BOUNDS.latMax) {
-                        btn.innerText = `ЗАХВАТИТЬ ЗА ${data.price} ⭐️`;
-                        btn.className = "btn btn-active";
-                        btn.disabled = false;
-                    } else {
-                        btn.innerText = loc ? "ВНЕ ЗОНЫ ОХВАТА" : "ВКЛЮЧИТЕ GPS";
-                        btn.className = "btn btn-locked";
-                        btn.disabled = true;
-                    }
-                });
+              tg.getLocation((loc) => {
+                const btn = document.getElementById('main-btn');
+
+                const me = tg.initDataUnsafe?.user?.id;
+                const isDev = DEV_ALLOW_IDS.includes(me);
+
+                const inZone = isDev || (
+                loc
+                && loc.latitude >= 54.0 && loc.latitude <= 57.0
+                && loc.longitude >= 35.0 && loc.longitude <= 40.0
+              );
+
+              if (inZone) {
+                btn.innerText = `ЗАХВАТИТЬ ЗА ${d.price} ⭐️`;
+                btn.className = "btn btn-blue";
+                btn.disabled = false;
+              } else {
+                btn.innerText = loc ? "ВНЕ ЗОНЫ" : "ВКЛЮЧИТЕ GPS";
+                btn.className = "btn btn-gray";
+                btn.disabled = true;
+              }
+              });
+
             } catch (e) {
               document.getElementById('owner').innerText = "ОШИБКА СВЯЗИ";   
               console.log("Fetch error:", e); }
@@ -78,4 +89,5 @@
     </script>
 </body>
 </html>
+
 
