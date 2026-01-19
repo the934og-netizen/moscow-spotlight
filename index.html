@@ -6,104 +6,59 @@
     <title>THE SPOTLIGHT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* Шапка с Verified Resident */
+        body { background-color: #0d1117; color: #ffffff; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .title { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin: 0; }
-        .subtitle { font-size: 12px; color: #8b949e; margin-top: -5px; }
-        .verified-box { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #d4af37; border: 1px solid #d4af37; padding: 2px 8px; border-radius: 5px; }
-
-        /* Владелец и Таймер */
-        .owner-section { width: 100%; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #d4af37; border: 2px solid #30363d; }
-        .username { font-weight: bold; font-size: 16px; }
-        .timer { color: #58a6ff; font-family: monospace; font-size: 14px; }
-        .thanks-btn { margin-left: auto; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 5px 12px; border-radius: 6px; font-size: 12px; }
-
-        /* ГЛАВНОЕ ОКНО ТРАНСЛЯЦИИ (НЕОН) */
-        .main-broadcast {
-            width: 100%; box-sizing: border-box; background: rgba(13, 17, 23, 0.8);
-            border: 2px solid; border-image: linear-gradient(45deg, #58a6ff, #bc8cff) 1;
-            padding: 30px 20px; position: relative; margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.2);
-        }
-        .broadcast-text { font-size: 18px; font-weight: 700; line-height: 1.3; text-transform: uppercase; }
-        .broadcast-footer { margin-top: 20px; color: #58a6ff; font-weight: bold; font-size: 14px; cursor: pointer; }
-
-        /* История эфира */
-        .history-section { width: 100%; text-align: left; margin-bottom: 20px; }
-        .history-title { font-size: 14px; color: #8b949e; margin-bottom: 10px; }
-        .history-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
-        .history-name { color: #d4af37; font-weight: bold; }
-
-        /* КНОПКА ЗАХВАТА */
-        .capture-btn {
-            width: 100%; background: linear-gradient(90deg, #1f6feb, #388bfd);
-            border: none; color: white; padding: 18px; border-radius: 12px;
-            font-size: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(31, 111, 235, 0.4);
-        }
-        .price-sub { margin-top: 10px; color: #3fb950; font-size: 12px; font-weight: bold; }
+        .verified-box { display: none; align-items: center; gap: 5px; font-size: 10px; color: #d4af37; border: 1px solid #d4af37; padding: 2px 8px; border-radius: 5px; }
+        .main-broadcast { width: 100%; border: 2px solid; border-image: linear-gradient(45deg, #58a6ff, #bc8cff) 1; padding: 30px 20px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(88,166,255,0.2); box-sizing: border-box; }
+        .capture-btn { width: 100%; background: linear-gradient(90deg, #1f6feb, #388bfd); border: none; color: white; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .capture-btn:disabled { background: #30363d !important; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div>
-            <div class="title">THE SPOTLIGHT</div>
-            <div class="subtitle">Внимание — это валюта.</div>
-        </div>
-        <div id="v-box" class="verified-box" style="display:none;">Verified Resident 🛡️</div>
-    </div>
-
-    <div class="owner-section">
-        <div class="avatar"></div>
-        <div>
-            <div id="owner-name" class="username">@urban_innovator</div>
-            <div class="timer">Таймер: <span id="time">04:59</span></div>
-        </div>
-        <button class="thanks-btn">Спасибо! 🙏</button>
+        <h1>THE SPOTLIGHT</h1>
+        <div id="v-box" class="verified-box">Verified Resident ⭐️</div>
     </div>
 
     <div class="main-broadcast">
-        <div id="main-content" class="broadcast-text">
-            ВСЕ, КТО ИЗ 11-ГО ПОДЪЕЗДА - СОБЕРЕМСЯ В ЧАТЕ! ОБСУДИМ, КТО ОПЯТЬ СЛОМАЛ ЛИФТ!
-        </div>
-        <div class="broadcast-footer">Присоединиться к чату</div>
+        <div id="main-content">Загрузка эфира...</div>
     </div>
 
-    <div class="history-section">
-        <div class="history-title">История эфира</div>
-        <div class="history-item"><span class="history-name">@cat_lover:</span> "Найден кот! Ул. Мира 5!"</div>
-        <div class="history-item"><span class="history-name">@local_bar:</span> "Пиво за полцены сегодня!"</div>
-    </div>
-
-    <button class="capture-btn" onclick="buy()">ЗАХВАТИТЬ ЭФИР за <span id="btn-price">10</span> ⭐</button>
-    <div class="price-sub">Текущая цена: <span id="current_price">10</span> ⭐</div>
+    <button id="main-btn" class="capture-btn" onclick="buy()">ЗАХВАТИТЬ ЭФИР</button>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        const MOSCOW_BOUNDS = { latMin: 54.0, latMax: 57.0, lonMin: 35.0, lonMax: 40.0 };
+
         async function update() {
-            const url = "https://issues-glucose-header-synopsis.trycloudflare.com/data";
             try {
-                const res = await fetch(url);
+                const res = await fetch("https://issues-glucose-header-synopsis.trycloudflare.com/data");
                 const data = await res.json();
                 
-                // Наполняем данными из вашей базы
-                document.getElementById('main-content').innerText = data.owner; // Текст из базы
-                document.getElementById('owner-name').innerText = "@user_" + (data.owner_id || "anon");
-                document.getElementById('btn-price').innerText = data.price;
-                document.getElementById('current_price').innerText = data.price;
-                
-                if (data.is_verified) { document.getElementById('v-box').style.display = 'flex'; }
-                else { document.getElementById('v-box').style.display = 'none'; }
-            } catch (e) { console.error("Ошибка связи"); }
+                document.getElementById('main-content').innerText = data.owner;
+                document.getElementById('v-box').style.display = data.is_verified ? 'flex' : 'none';
+
+                // Авто-проверка ГЕО
+                tg.getLocation((geo) => {
+                    const btn = document.getElementById('main-btn');
+                    if (!geo || !geo.latitude) {
+                        btn.innerText = "ВКЛЮЧИТЕ ГЕОПОЗИЦИЮ";
+                        btn.disabled = true;
+                    } else if (geo.latitude < MOSCOW_BOUNDS.latMin || geo.latitude > MOSCOW_BOUNDS.latMax) {
+                        btn.innerText = "ВНЕ ЗОНЫ ОХВАТА";
+                        btn.disabled = true;
+                    } else {
+                        btn.innerText = "ЗАХВАТИТЬ ЭФИР за " + data.price + " ⭐️";
+                        btn.disabled = false;
+                    }
+                });
+            } catch (e) { console.error("Ошибка"); }
         }
 
         function buy() { tg.sendData("action_buy_spotlight"); }
-        setInterval(update, 3000);
+        setInterval(update, 5000);
         update();
     </script>
 </body>
