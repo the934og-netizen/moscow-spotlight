@@ -42,7 +42,9 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        const BOUNDS = { latMin: 54.0, latMax: 57.0, lonMin: 35.0, lonMax: 40.0 };
+        const inZone = loc
+          && loc.latitude >= 54.0 && loc.latitude <= 57.0
+          && loc.longitude >= 35.0 && loc.longitude <= 40.0;
 
         async function updateUI() {
             try {
@@ -65,7 +67,9 @@
                         btn.disabled = true;
                     }
                 });
-            } catch (e) { document.getElementById('owner').innerText = "Ошибка связи"; }
+            } catch (e) {
+              document.getElementById('owner').innerText = "ОШИБКА СВЯЗИ";   
+              console.log("Fetch error:", e); }
         }
 
         document.getElementById('main-btn').onclick = () => tg.sendData("action_buy_spotlight");
@@ -74,3 +78,4 @@
     </script>
 </body>
 </html>
+
